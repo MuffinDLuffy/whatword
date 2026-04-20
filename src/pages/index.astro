@@ -1,0 +1,213 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const categories = [
+  {
+    letters: 4,
+    label: '4 letters',
+    shape: 'diamond',
+    href: '/game/4',
+  },
+  {
+    letters: 5,
+    label: '5 letters',
+    shape: 'pentagon',
+    href: '/game/5',
+  },
+  {
+    letters: 6,
+    label: '6 letters',
+    shape: 'hexagon',
+    href: '/game/6',
+  },
+];
+
+/*
+  LEARNING NOTE — SVG Polygon Points:
+  These points were calculated using polar coordinates:
+    x = cx + r * cos(2π*i/n - π/2)
+    y = cy + r * sin(2π*i/n - π/2)
+  where n = number of sides, r = radius, i = vertex index.
+  All shapes fit inside a 90×90 viewBox.
+*/
+function getPolygonPoints(shape: string): string {
+  switch (shape) {
+    case 'diamond':
+      // 4 sides, rotated 45° — classic rhombus / Wordle diamond feel
+      return '45,5 85,45 45,85 5,45';
+
+    case 'pentagon':
+      // 5 sides, flat bottom
+      return '45,5 83,32.6 68.5,77.4 21.5,77.4 7,32.6';
+
+    case 'hexagon':
+      // 6 sides, pointy top (matching your Penpot mockup)
+      return '45,5 79.6,25 79.6,65 45,85 10.4,65 10.4,25';
+
+    default:
+      return '';
+  }
+}
+---
+
+<Layout title="Index" description="Choose your word length to start playing">
+
+  <main class="index-screen">
+
+    <!-- ── Title ─────────────────────────────────────────── -->
+    <header class="title-block">
+      <h1 class="game-title">THE<br />WORD</h1>
+      <p class="subtitle">Choose a category</p>
+    </header>
+
+    <!-- ── Category Selectors ────────────────────────────── -->
+    <!--
+      LEARNING NOTE — Astro Template Syntax:
+      {categories.map(...)} iterates your data array and renders
+      HTML for each item. Same concept as .map() in React, but
+      the output is static HTML — no JavaScript in the browser
+      unless YOU add it.
+    -->
+    <nav class="categories" aria-label="Game categories">
+      {categories.map((cat) => (
+        <a
+          href={cat.href}
+          class="category-btn"
+          aria-label={`Play with ${cat.letters}-letter words`}
+        >
+          <!-- The SVG shape -->
+          <svg
+            class="category-shape"
+            viewBox="0 0 90 90"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <polygon points={getPolygonPoints(cat.shape)} />
+          </svg>
+
+          <!-- Label below each shape -->
+          <span class="category-label">{cat.label}</span>
+        </a>
+      ))}
+    </nav>
+
+    <!-- ── Footer hint ───────────────────────────────────── -->
+    <footer class="index-footer">
+      <p>Tap a shape to play</p>
+    </footer>
+
+  </main>
+
+</Layout>
+
+<!--
+  LEARNING NOTE — Scoped Styles:
+  <style> tags in Astro are SCOPED by default — these styles only
+  affect THIS component. No class-name collisions across pages.
+  Use global.css only for truly shared rules (tokens, reset).
+-->
+<style>
+  /* ── Screen Layout ──────────────────────────────────────── */
+  .index-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-xl) var(--space-lg);
+  }
+
+  /* ── Title Block ────────────────────────────────────────── */
+  .title-block {
+    text-align: center;
+    padding-top: var(--space-lg);
+  }
+
+  .game-title {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    line-height: 1;
+    letter-spacing: 0.12em;
+
+    /*
+      Subtle text-shadow gives the letters a pressed, stamped quality —
+      matching the earthy, tactile feel of the brown palette.
+    */
+    text-shadow: 2px 3px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  .subtitle {
+    margin-top: var(--space-sm);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(219, 210, 155, 0.55);
+  }
+
+  /* ── Categories Row ─────────────────────────────────────── */
+  .categories {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+    flex: 1;
+  }
+
+  /* Each clickable shape + label */
+  .category-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+
+  .category-btn:hover,
+  .category-btn:focus-visible {
+    transform: translateY(-4px) scale(1.05);
+    filter: drop-shadow(0 6px 12px rgba(219, 210, 155, 0.35));
+    outline: none;
+  }
+
+  .category-btn:active {
+    transform: translateY(0) scale(0.97);
+  }
+
+  /* SVG polygon shape */
+  .category-shape {
+    width: 72px;
+    height: 72px;
+  }
+
+  .category-shape polygon {
+    fill: var(--color-accent);
+    /*
+      stroke gives shapes a bit of definition against the bg.
+      Matches the slight outline visible in your Penpot mockup.
+    */
+    stroke: rgba(0, 0, 0, 0.2);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+
+  /* Label text under each shape */
+  .category-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(219, 210, 155, 0.7);
+  }
+
+  /* ── Footer ─────────────────────────────────────────────── */
+  .index-footer {
+    padding-bottom: var(--space-lg);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(219, 210, 155, 0.3);
+  }
+</style>

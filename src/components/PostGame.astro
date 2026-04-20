@@ -1,0 +1,152 @@
+---
+// src/components/PostGame.astro
+---
+
+<div id="post-game-overlay" class="overlay hidden" aria-hidden="true">
+  <article class="result-card">
+    
+    <header class="card-header">
+      <h2 id="pg-status">You found the word!</h2>
+      <h1 id="pg-word" class="the-word"></h1>
+    </header>
+
+    <div class="info-section">
+      <h3 id="pg-etymology-title">Etymology</h3>
+      <p id="pg-etymology"></p>
+    </div>
+
+    <div class="info-section">
+      <h3 id="pg-common-title">Common Uses</h3>
+      <ul id="pg-uses" class="uses-list"></ul>
+    </div>
+
+    <div class="info-section highlight">
+      <h3 id="pg-irl-title">In Real Life</h3>
+      <p id="pg-irl" class="irl-text"></p>
+    </div>
+
+    <button id="pg-close" class="action-btn">Close & Return</button>
+  </article>
+</div>
+
+<style>
+  /* ── Overlay System ────────────────────────────────────── */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(89, 47, 22, 0.95); /* var(--color-bg) with opacity */
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+    
+    /* Smooth fade-in animation */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── Card UI ───────────────────────────────────────────── */
+  .result-card {
+    background: var(--color-card);
+    border: 1px solid var(--color-tile-border);
+    border-radius: var(--radius-card);
+    padding: var(--space-xl) var(--space-lg);
+    width: 100%;
+    max-width: var(--game-max-w);
+    color: var(--color-accent);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    
+    /* Slide up animation for PWA feel */
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+  }
+
+  .overlay.visible .result-card {
+    transform: translateY(0);
+  }
+
+  /* ── Typography & Sections ─────────────────────────────── */
+  .card-header {
+    text-align: center;
+    border-bottom: 1px solid var(--color-tile-border);
+    padding-bottom: var(--space-md);
+  }
+
+  #pg-status {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+  }
+
+  .the-word {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    margin-top: var(--space-xs);
+  }
+
+  .info-section h3 {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-xs);
+    opacity: 0.7;
+  }
+
+  .info-section p, .info-section li {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .uses-list {
+    padding-left: var(--space-md);
+  }
+
+  .uses-list li {
+    margin-bottom: var(--space-xs);
+  }
+
+  /* Emphasis for the "In Real Life" section */
+  .highlight {
+    background: rgba(255, 255, 255, 0.05);
+    padding: var(--space-md);
+    border-radius: var(--radius-btn);
+  }
+
+  .irl-text {
+    font-style: italic;
+  }
+
+  /* ── Action Button ─────────────────────────────────────── */
+  .action-btn {
+    margin-top: var(--space-sm);
+    background: var(--color-accent);
+    color: var(--color-btn); /* Inverted for high contrast */
+    border: none;
+    padding: var(--space-md);
+    border-radius: var(--radius-btn);
+    font-family: var(--font-body);
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+
+  .action-btn:active {
+    transform: scale(0.98);
+  }
+</style>

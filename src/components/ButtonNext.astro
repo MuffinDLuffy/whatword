@@ -1,0 +1,51 @@
+---
+/*
+  LEARNING NOTE — Astro Components:
+  Components are reusable pieces of UI. Unlike pages, they don't
+  become routes — they're imported and used inside other files.
+
+  Props let the parent customize the component.
+  Here, `label` defaults to "Next" so you can override it
+  (e.g. <ButtonNext label="Let's go!" />) without touching the component.
+
+  `data-*` attributes are a clean HTML-native way to pass extra info
+  to JavaScript without inventing custom logic. We use data-action
+  so one <script> tag can handle ALL buttons by reading that value.
+*/
+
+interface Props {
+  label?: string;
+  dataAction?: string; // e.g. "next-step", "go-home", etc.
+}
+
+const {
+  label = 'Next',
+  dataAction = 'next-step',
+} = Astro.props;
+---
+
+<button class="btn-next" data-action={dataAction}>
+  {label}
+</button>
+
+<style>
+  .btn-next {
+    background-color: var(--color-btn);
+    color: var(--color-btn-text);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-btn);
+    border: 1.5px solid rgba(219, 210, 155, 0.25);
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+
+  .btn-next:hover {
+    filter: brightness(1.25);
+  }
+
+  .btn-next:active {
+    transform: scale(0.96);
+  }
+</style>

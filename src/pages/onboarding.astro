@@ -1,0 +1,405 @@
+---
+/*
+  LEARNING NOTE — Single-page stepper (sometimes called a "wizard"):
+  The pattern you're using here has a few common names:
+
+  • "Stepper" or "wizard" → in forms and onboarding flows (most accurate here)
+  • "Carousel" → when slides swap with a swipe/animation (same JS idea,
+     different visual metaphor — usually implies left/right movement)
+  • "Multi-step form" → when each step collects data (also accurate here
+     because step 1 collects the language preference)
+
+  All three share the same core mechanic: ONE page in the URL,
+  JavaScript shows/hides sections and tracks which step you're on.
+  "Stepper" is the clearest name for this use case.
+*/
+import Layout from '../layouts/Layout.astro';
+import ButtonNext from '../components/ButtonNext.astro';
+import ButtonClose from '../components/ButtonClose.astro';
+import PolyIcon from '../components/PolyIcon.astro';
+---
+
+<Layout title="Welcome" description="Learn how to play The Word">
+  <main class="onboarding-screen">
+
+    <div class="bg-shapes" aria-hidden="true">
+      <PolyIcon shape="diamond" size={60} color="rgba(219,210,155,0.12)" />
+      <PolyIcon shape="pentagon" size={80} color="rgba(219,210,155,0.10)" />
+      <PolyIcon shape="hexagon" size={60} color="rgba(219,210,155,0.12)" />
+    </div>
+
+    <div class="card">
+      <p class="step-counter" id="step-counter" aria-live="polite">1/3</p>
+
+      <!-- ── STEP 1 — Language preference ──────────────────── -->
+      <section class="step" id="step-1">
+        <p class="card-text"
+          data-es="Aunque las palabras que te vas a encontrar como objetivo del juego están en inglés, tienes la opción de iniciar con las explicaciones en español y gradualmente cambiar al inglés."
+          data-en="The target words in this game are in English. You can choose to start with instructions in Spanish and gradually transition to English, or go fully English from the start."
+        >Aunque las palabras que te vas a encontrar como objetivo del juego están en inglés, tienes la opción de iniciar con las explicaciones en español y gradualmente cambiar al inglés.</p>
+
+        <div class="card-shapes" aria-hidden="true">
+          <PolyIcon shape="diamond"  size={42} color="#3a8c5c" />
+          <PolyIcon shape="pentagon" size={50} color="#3a8c5c" />
+          <PolyIcon shape="hexagon"  size={42} color="#3a8c5c" />
+        </div>
+
+        <fieldset class="lang-fieldset">
+          <legend class="sr-only">Choose your language</legend>
+          <label class="lang-option">
+            <input type="radio" name="lang" value="es" checked />
+            <span>Prefiero empezar en español.</span>
+          </label>
+          <label class="lang-option">
+            <input type="radio" name="lang" value="en" />
+            <span>English, please!</span>
+          </label>
+        </fieldset>
+      </section>
+
+      <!-- ── STEP 2 — Game rules ────────────────────────────── -->
+      <section class="step hidden" id="step-2">
+        <p class="card-text"
+          data-es="-Este juego consiste en descubrir la palabra misteriosa. Hay 3 categorías:"
+          data-en="-This game is about finding out the mysterious word. There are 3 categories:"
+        >-This game is about finding out the mysterious word. There are 3 categories:</p>
+
+        <ul class="category-list">
+          <li>
+            <PolyIcon shape="diamond"  size={18} color="var(--color-accent)" />
+            <span data-es="- palabras de 4 letras." data-en="- 4 letter words.">- 4 letter words.</span>
+          </li>
+          <li>
+            <PolyIcon shape="pentagon" size={18} color="var(--color-accent)" />
+            <span data-es="- palabras de 5 letras." data-en="- 5 letter words.">- 5 letter words.</span>
+          </li>
+          <li>
+            <PolyIcon shape="hexagon"  size={18} color="var(--color-accent)" />
+            <span data-es="- palabras de 6 letras." data-en="- 6 letter words.">- 6 letter words.</span>
+          </li>
+        </ul>
+
+        <p class="card-text"
+          data-es="-Solo tienes 5 oportunidades para adivinar la palabra correcta. Hay solo 1 palabra por categoría al día."
+          data-en="-You only have 5 opportunities to guess the correct word. There is only 1 word per category per day."
+        >-You only have 5 opportunities to guess the correct word. There is only 1 word per category per day.</p>
+
+        <p class="card-text"
+          data-es="-Entre más letras, más complicada puede ser la palabra. ¡Aun así, te animamos a jugar las 3 categorías diariamente!"
+          data-en="-The larger the number of letters, the more complicated the word could be. Yet, we encourage you to play the 3 categories daily!"
+        >-The larger the number of letters, the more complicated the word could be. Yet, we encourage you to play the 3 categories daily!</p>
+      </section>
+
+      <!-- ── STEP 3 — Rewards ───────────────────────────────── -->
+      <section class="step hidden" id="step-3">
+        <p class="card-text"
+          data-es="-Ya sea que hayas descubierto la palabra del día o hayas perdido, tu recompensa es la traducción, etimología y usos de la palabra, y un +1 en tu contador de puntaje."
+          data-en="-Either if you found out the word of the day or you lost, your reward is the translation, etymology and uses for the word, and a +1 in your score counter for the category you're playing in."
+        >-Either if you found out the word of the day or you lost, your reward is the translation, etymology and uses for the word, and a +1 in your score counter for the category you're playing in.</p>
+
+        <p class="card-text"
+          data-es="-Por ahora este puntaje solo sirve para presumir, pero puede volverse útil en el futuro."
+          data-en="-As of right now this score is worth nothing more than showing off, but it may become useful in the future."
+        >-As of right now this score is worth nothing more than showing off, but it may become useful in the future.</p>
+      </section>
+
+      <!-- ── Footer ────────────────────────────────────────── -->
+      <footer class="card-footer">
+        <!--
+          "Don't show again" checkbox — only visible on step 3.
+          
+          LEARNING NOTE — localStorage as user preference storage:
+          We save this as a flag in localStorage. Then, at the TOP
+          of this page's <script>, we check that flag immediately —
+          if it's set, we redirect the user to the index before they
+          even see the onboarding. This is how most apps implement
+          "skip intro" behaviour without a backend or login system.
+        -->
+        <label class="dont-show-label hidden" id="dont-show-label">
+          <input type="checkbox" id="dont-show-checkbox" />
+          <span id="dont-show-text"
+            data-es="No mostrar de nuevo."
+            data-en="Don't show again."
+          >Don't show again.</span>
+        </label>
+
+        <div id="btn-next-wrapper">
+          <ButtonNext />
+        </div>
+        <div id="btn-close-wrapper" class="hidden">
+          <ButtonClose href="/" />
+        </div>
+      </footer>
+    </div>
+
+  </main>
+</Layout>
+
+<script>
+  /*
+    ── "Don't show again" redirect ─────────────────────────────
+    
+    LEARNING NOTE — Early redirect pattern:
+    This runs BEFORE anything else. If the user already checked
+    "don't show again" on a previous visit, we send them straight
+    to the index. This is why the check is at the very top of the
+    script — we want to bail out as fast as possible.
+
+    window.location.replace() is used instead of window.location.href
+    because replace() removes the current page from browser history,
+    so the back button won't bring them back to onboarding.
+  */
+  const SKIP_KEY = 'theword-skip-onboarding';
+  const LANG_KEY = 'theword-lang';
+
+  if (localStorage.getItem(SKIP_KEY) === 'true') {
+    window.location.replace('/');
+  }
+
+  // ── State ────────────────────────────────────────────────────
+  let currentStep = 1;
+  const totalSteps = 3;
+  let selectedLang: 'es' | 'en' =
+    (localStorage.getItem(LANG_KEY) as 'es' | 'en') ?? 'es';
+
+  // ── Element refs ─────────────────────────────────────────────
+  const stepCounter      = document.getElementById('step-counter')!;
+  const btnNextWrapper   = document.getElementById('btn-next-wrapper')!;
+  const btnCloseWrapper  = document.getElementById('btn-close-wrapper')!;
+  const dontShowLabel    = document.getElementById('dont-show-label')!;
+  const dontShowCheckbox = document.getElementById('dont-show-checkbox') as HTMLInputElement;
+  const dontShowText     = document.getElementById('dont-show-text')!;
+  const langRadios       = document.querySelectorAll<HTMLInputElement>('input[name="lang"]');
+
+  // ── Language swap ─────────────────────────────────────────────
+  /*
+    LEARNING NOTE — querySelectorAll + forEach:
+    This grabs every element that has BOTH a data-es and data-en
+    attribute, then sets its visible text to whichever language is
+    selected. It's a lightweight substitute for a real i18n library.
+    "i18n" stands for "internationalization" (18 letters between i–n).
+  */
+  function applyLanguage(lang: 'es' | 'en') {
+    document.querySelectorAll<HTMLElement>('[data-es][data-en]').forEach(el => {
+      el.textContent = el.dataset[lang] ?? '';
+    });
+  }
+
+  // Restore saved language preference
+  langRadios.forEach(r => { if (r.value === selectedLang) r.checked = true; });
+  applyLanguage(selectedLang);
+
+  langRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      selectedLang = radio.value as 'es' | 'en';
+      localStorage.setItem(LANG_KEY, selectedLang);
+      applyLanguage(selectedLang);
+    });
+  });
+
+  // ── "Don't show again" checkbox ───────────────────────────────
+  /*
+    LEARNING NOTE — Saving a boolean in localStorage:
+    localStorage only stores strings, so we save the string 'true'
+    and check for it with === 'true' when reading back.
+    Alternatively you could use JSON.stringify/parse, but for a
+    single boolean the string approach is simplest.
+  */
+  dontShowCheckbox.addEventListener('change', () => {
+    if (dontShowCheckbox.checked) {
+      localStorage.setItem(SKIP_KEY, 'true');
+    } else {
+      localStorage.removeItem(SKIP_KEY);
+    }
+  });
+
+  // ── Step navigation ───────────────────────────────────────────
+  function goToStep(step: number) {
+    document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+    document.getElementById(`step-${step}`)?.classList.remove('hidden');
+    stepCounter.textContent = `${step}/${totalSteps}`;
+
+    const isLast = step === totalSteps;
+    btnNextWrapper.classList.toggle('hidden', isLast);
+    btnCloseWrapper.classList.toggle('hidden', !isLast);
+
+    /*
+      Show the "Don't show again" label only on the final step.
+      
+      LEARNING NOTE — classList.toggle(className, condition):
+      The second argument is a boolean. When true → adds the class.
+      When false → removes it. Cleaner than an if/else block.
+    */
+    dontShowLabel.classList.toggle('hidden', !isLast);
+
+    // Keep the "don't show" text in sync with the current language
+    applyLanguage(selectedLang);
+
+    currentStep = step;
+  }
+
+  // ── Event delegation ─────────────────────────────────────────
+  /*
+    LEARNING NOTE — Event delegation:
+    Instead of adding a click listener to EACH button, we add ONE
+    listener to the whole document. When any element is clicked, we
+    walk up the DOM tree with .closest() to find the nearest ancestor
+    with a data-action attribute. This handles dynamically-added
+    buttons too, and is more memory-efficient than per-element listeners.
+  */
+  document.addEventListener('click', (e) => {
+    const action = (e.target as HTMLElement)
+      .closest('[data-action]')
+      ?.getAttribute('data-action');
+
+    if (action === 'next-step' && currentStep < totalSteps) {
+      goToStep(currentStep + 1);
+    }
+  });
+
+  // Init on first load
+  goToStep(1);
+</script>
+
+<style>
+  .onboarding-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+    position: relative;
+  }
+
+  .bg-shapes {
+    position: absolute;
+    bottom: var(--space-xl);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--space-lg);
+    pointer-events: none;
+  }
+
+  .card {
+    width: 100%;
+    background-color: var(--color-card);
+    border-radius: var(--radius-card);
+    border: 1.5px solid rgba(219, 210, 155, 0.2);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    min-height: 420px;
+  }
+
+  .step-counter {
+    font-size: 0.75rem;
+    color: rgba(219, 210, 155, 0.6);
+    letter-spacing: 0.1em;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    flex: 1;
+  }
+
+  .hidden { display: none !important; }
+
+  .card-text {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--color-accent);
+    text-align: justify;
+  }
+
+  .card-shapes {
+    display: flex;
+    gap: var(--space-md);
+    margin: var(--space-xs) 0;
+  }
+
+  .lang-fieldset {
+    border: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .lang-option {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    line-height: 1.5;
+  }
+
+  .lang-option input[type="radio"] {
+    accent-color: var(--color-accent);
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  .category-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding-left: var(--space-md);
+  }
+
+  .category-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    color: var(--color-accent);
+  }
+
+  /* ── Footer ───────────────────────────────────────────────── */
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: var(--space-sm);
+  }
+
+  /* "Don't show again" label */
+  .dont-show-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    color: rgba(219, 210, 155, 0.65);
+    line-height: 1.4;
+  }
+
+  .dont-show-label input[type="checkbox"] {
+    accent-color: var(--color-accent);
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+  }
+</style>

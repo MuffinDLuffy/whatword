@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  /* ── Brand palette ─────────────────────────── */
+  --color-bg:      #592f16;
+  --color-accent:  #dbd29b;
+  --color-card:    #16592f;
+  --color-btn:     #2f1659;
+  --color-correct: #2d7a4f;
+  --color-present: #a08820;
+  --color-absent:  #3a2a1a;
+
+  /* ── Tile colors ───────────────────────────── */
+  --color-tile-border: rgba(219,210,155,0.28);
+
+  /* ── Typography ────────────────────────────── */
+  --font-display: 'Libre Baskerville', serif;
+  --font-body:    'Space Mono', monospace;
+
+  /* ── Spacing ───────────────────────────────── */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+
+  /* ── Radii ─────────────────────────────────── */
+  --radius-card: 12px;
+  --radius-btn:  6px;
+  --radius-tile: 4px;
+
+  /* ── Game sizing ───────────────────────────── */
+  --game-max-w:    480px;
+  --tile-size:     clamp(44px, 11vw, 62px);
+  --tile-font-size: clamp(1rem, 3vw, 1.4rem);
+
+  /* ── Legacy frame (index + onboarding only) ── */
+  --frame-w: 360px;
+  --frame-h: 640px;
+}
+
+/* ── Reset ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-accent);
+  background: var(--color-bg);
+  min-height: 100vh;
+}
+
+/* Frame mode: index + onboarding */
+body.frame-mode {
+  background: #1a0d07;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Game mode: full-width responsive */
+body.game-mode {
+  background: var(--color-bg);
+  display: block;
+}
+
+a   { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: var(--font-body); border: none; }

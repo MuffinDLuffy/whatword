@@ -1,0 +1,39 @@
+---
+/*
+  LEARNING NOTE — Extracting repeated UI into components:
+  The three polygon shapes appear on the Index AND the Onboarding card.
+  Instead of duplicating the SVG code, we make one component and import
+  it wherever needed. If the shape or color ever changes, one edit fixes all.
+*/
+
+interface Props {
+  shape: 'diamond' | 'pentagon' | 'hexagon';
+  size?: number;   // px
+  color?: string;  // CSS color or variable
+}
+
+const { shape, size = 28, color = 'var(--color-accent)' } = Astro.props;
+
+const points: Record<string, string> = {
+  diamond: '45,5 85,45 45,85 5,45',
+  pentagon: '45,5 83,32.6 68.5,77.4 21.5,77.4 7,32.6',
+  hexagon:  '45,5 79.6,25 79.6,65 45,85 10.4,65 10.4,25',
+};
+---
+
+<svg
+  viewBox="0 0 90 90"
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  aria-hidden="true"
+  style={`display:inline-block; vertical-align:middle;`}
+>
+  <polygon
+    points={points[shape]}
+    fill={color}
+    stroke="rgba(0,0,0,0.2)"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+</svg>

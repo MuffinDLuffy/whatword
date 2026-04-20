@@ -1,0 +1,76 @@
+---
+/*
+  LEARNING NOTE — The variant prop:
+  Now Layout accepts a `variant` that controls the page's body class.
+  "frame" = the 360×640 centered card (index, onboarding)
+  "game"  = full-width responsive layout (lobby, game)
+
+  This is how one layout serves two very different visual modes
+  without duplicating the HTML boilerplate.
+*/
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  variant?: 'frame' | 'game'; // default: frame
+}
+
+const {
+  title,
+  description = 'A word puzzle game',
+  variant = 'frame',
+} = Astro.props;
+
+const bodyClass = variant === 'game' ? 'game-mode' : 'frame-mode';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title} — The Word</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class={bodyClass}>
+    {variant === 'frame' ? (
+      <div class="game-frame">
+        <slot />
+      </div>
+    ) : (
+      <div class="game-full">
+        <slot />
+      </div>
+    )}
+  </body>
+</html>
+
+<style>
+  /* ── Frame variant (index, onboarding) ─────── */
+  .game-frame {
+    width: var(--frame-w);
+    height: var(--frame-h);
+    background: var(--color-bg);
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(219,210,155,0.15),
+      0 24px 64px rgba(0,0,0,0.6);
+  }
+
+  /* ── Game variant (lobby, gameplay) ────────── */
+  .game-full {
+    width: 100%;
+    max-width: var(--game-max-w);
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+</style>

@@ -1,0 +1,56 @@
+---
+/*
+  Close button — same visual style as ButtonNext, different semantic role.
+  Keeping them as separate components makes intent clear in the template:
+    <ButtonNext /> = advance the flow
+    <ButtonClose /> = exit the flow
+  They share CSS variables so restyling one place updates both.
+*/
+
+interface Props {
+  label?: string;
+  href?: string; // optional: turn it into a link instead of a button
+  dataAction?: string;
+}
+
+const {
+  label = 'Close',
+  href,
+  dataAction = 'close',
+} = Astro.props;
+---
+
+{href ? (
+  <a href={href} class="btn-close">
+    {label}
+  </a>
+) : (
+  <button class="btn-close" data-action={dataAction}>
+    {label}
+  </button>
+)}
+
+<style>
+  .btn-close {
+    display: inline-block;
+    background-color: var(--color-btn);
+    color: var(--color-btn-text);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-btn);
+    border: 1.5px solid rgba(219, 210, 155, 0.25);
+    transition: filter 0.15s ease, transform 0.1s ease;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .btn-close:hover {
+    filter: brightness(1.25);
+  }
+
+  .btn-close:active {
+    transform: scale(0.96);
+  }
+</style>
