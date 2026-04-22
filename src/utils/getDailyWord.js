@@ -1,30 +1,36 @@
 
 import { words4, words5, words6 } from '../data/word.js';
 
-export function getDailyWord(categoryLength) {
-  // 1. Define the launch date of your game
-  const startDate = new Date('2026-04-19T00:00:00'); 
-  
-  // 2. Get the current date
-  const today = new Date();
-  
-  // 3. Calculate the difference in time (milliseconds)
-  const differenceInTime = today.getTime() - startDate.getTime();
-  
-  // 4. Convert time difference from milliseconds to days
-  const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-  
-  // 5. Select the right dictionary based on the category passed
+/**
+ * Get a single daily word for the given category length.
+ * Uses UTC-based day boundaries so all players see the same word worldwide.
+ *
+ * @param {number} categoryLength - word length (e.g., 4, 5, 6)
+ * @param {Date|number|string} [date=new Date()] - optional date for testing (Date object, timestamp or parsable string)
+ * @returns {string} the daily word in UPPERCASE
+ */
+export function getDailyWord(categoryLength, date = new Date()) {
+  // Start date at UTC midnight: April 19, 2026 (months are 0-indexed)
+  const START_DATE_UTC_MS = Date.UTC(2026, 3, 19);
+
+  const d = date instanceof Date ? date : new Date(date);
+  // UTC midnight for `d` so day boundaries are consistent globally
+  const todayUtcMidnightMs = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+
+  let differenceInDays = Math.floor((todayUtcMidnightMs - START_DATE_UTC_MS) / (1000 * 60 * 60 * 24));
+  if (!Number.isFinite(differenceInDays) || differenceInDays < 0) differenceInDays = 0;
+
+  // Select dictionary by length
   let dictionary;
   if (categoryLength === 4) dictionary = words4;
   else if (categoryLength === 5) dictionary = words5;
   else if (categoryLength === 6) dictionary = words6;
-  // Extend here for other lengths (7, 8, ...)
 
-  // 6. Use the modulo operator (%) to loop back to the start of the array 
-  // if you run out of words before adding more.
+  if (!dictionary || dictionary.length === 0) {
+    throw new Error(`No dictionary found for category length ${categoryLength}`);
+  }
+
   const index = differenceInDays % dictionary.length;
 
-  // Return uppercase so consumers (client logic, dictionary lookups) can use consistent keys
-  return dictionary[index].toUpperCase();
+  return String(dictionary[index]).toUpperCase();
 }

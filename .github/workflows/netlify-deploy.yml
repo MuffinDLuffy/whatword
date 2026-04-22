@@ -1,0 +1,60 @@
+name: Build and Deploy to Netlify
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate sitemap
+        run: node ./scripts/generate-sitemap.js
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+
+      - name: Build
+        run: npm run build
+
+      - name: Netlify Preview Deploy
+        if: ${{ github.event_name == 'pull_request' }}
+        id: netlify_preview
+        run: |
+          npm install -g netlify-cli
+          netlify deploy --dir=dist --site=${{ secrets.NETLIFY_SITE_ID }} --json > deploy.json
+          DEPLOY_URL=$(node -e "const r=require('./deploy.json'); console.log(r.deploy_url||r.url||r.site_url||'')")
+          if [ -z "$DEPLOY_URL" ]; then echo 'Failed to read deploy URL' >&2; cat deploy.json >&2; exit 1; fi
+          echo "deploy_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Comment Netlify preview URL on PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Netlify preview deploy: ${{ steps.netlify_preview.outputs.deploy_url }}
+
+      - name: Netlify Production Deploy
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          npm install -g netlify-cli
+          netlify deploy --dir=dist --prod --site=${{ secrets.NETLIFY_SITE_ID }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}

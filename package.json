@@ -4,6 +4,8 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "astro dev",
+    "generate-sitemap": "node ./scripts/generate-sitemap.js",
+    "prebuild": "node ./scripts/generate-sitemap.js",
     "build": "astro build",
     "preview": "astro preview"
   },
