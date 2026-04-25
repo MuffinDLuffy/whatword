@@ -174,8 +174,10 @@ overlay.classList.add('is-visible');
   const irlEl = document.getElementById('pg-irl');
   const usesList = document.getElementById('pg-uses');
 
-  if (!statusEl || !wordEl || !etymEl || !irlEl || !usesList) return;
-
+ if (!statusEl || !wordEl || !etymEl || !irlEl || !usesList) {
+    console.error("Missing Elements:", { statusEl, wordEl, etymEl, irlEl, usesList });
+    return;
+}
   const ui = UI_STRINGS[LANG] ?? UI_STRINGS.en;
 
   statusEl.textContent = isWin ? ui.found : ui.notFound;
