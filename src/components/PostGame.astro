@@ -43,15 +43,18 @@
     padding: var(--space-lg);
     
     /* Smooth fade-in animation */
-    opacity: 1;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
+.overlay {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+  /* other styles... */
+}
 
-  .overlay.is-visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
+/* Make sure this class exists and is being added by your JS */
+.overlay.is-visible { 
+  opacity: 1;
+  pointer-events: auto;
+}
 
   /* ── Card UI ───────────────────────────────────────────── */
   .result-card {
