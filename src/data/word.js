@@ -2,7 +2,7 @@
 
 export const words4 = [
   "play", "code", "star", "moon", "fire",
-  "wind", "time", "mind", "soul", "idea",
+  "wind", "TIME", "mind", "soul", "idea",
   // Add as many 4-letter words as you can here!
 ];
 

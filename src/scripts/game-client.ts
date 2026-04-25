@@ -157,8 +157,10 @@ const targetWord = getDailyWord(WORD_LENGTH);
 
 function showPostGameScreen(isWin: boolean) {
   isGameOver = true;
+  
   const overlay = document.getElementById('post-game-overlay');
   const data = getWordData(targetWord);
+  
 
   if (!overlay || !data) return;
 
