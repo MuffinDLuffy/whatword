@@ -157,12 +157,15 @@ const targetWord = getDailyWord(WORD_LENGTH);
 
 function showPostGameScreen(isWin: boolean) {
   isGameOver = true;
-  
+
   const overlay = document.getElementById('post-game-overlay');
   const data = getWordData(targetWord);
   
 
   if (!overlay || !data) return;
+
+overlay.classList.remove('hidden'); // Remove the display:none or initial hide
+overlay.classList.add('is-visible');
 
   // Update UI Elements
   const statusEl = document.getElementById('pg-status');
